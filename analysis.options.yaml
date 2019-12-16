@@ -1,0 +1,22 @@
+include: package:pedantic/analysis_options.yaml
+analyzer:
+  errors:
+    invalid_assignment: error
+    missing_return: error
+    dead_code: error
+linter:
+  # These rules append to the pedantic package rules
+  rules:
+    use_rethrow_when_possible: true
+    unnecessary_await_in_return: false
+    unnecessary_const: false
+    unnecessary_new: false
+    avoid_returning_null: true
+    avoid_shadowing_type_parameters: false
+    prefer_contains: true
+    prefer_is_empty: true
+    prefer_generic_function_type_aliases: true
+    prefer_equal_for_default_values: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    prefer_initializing_formals: true

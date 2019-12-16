@@ -1,0 +1,17 @@
+name: SDLang_Dart
+description: Dart Implementation of SDLang
+version: 0.0.1
+author: Jahan Addison
+
+environment:
+  sdk: '>=2.3.0 <3.0.0'
+
+dependencies:
+  petitparser: "^2.3.0"
+  fixnum: "^0.10.11"
+
+
+dev_dependencies:
+  grinder: "^0.8.0"
+  analyzer: ">=0.30.0 <0.37.0"
+  test: ^1.6.3

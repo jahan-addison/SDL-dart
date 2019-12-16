@@ -1,12 +1,16 @@
 # SDLang-Dart
-Simple Declarative Language (SDL) for Dart
+Simple Declarative Language ([SDL](https://sdlang.org/)) for Dart
 
-#### What's left:
-    * Date values
-    * Binary data values
+> SDLang is a simple and concise way to textually represent data. It has an XML-like structure – tags, values and attributes – which makes it a versatile choice for data serialization, configuration files, or declarative languages. Its syntax was inspired by the C family of languages (C/C++, C#, D, Java, …).
 
-#### Wont Do
-    * 128 bit decimal (not possible)
+What's left:
+
+    * Date values.
+    * Binary data values.
+
+Wont Do:
+
+    * 128 bit decimal (not possible.)
 
 ## License
-Apache License 2.0
+Apache License 2.0.

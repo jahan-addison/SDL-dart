@@ -1,4 +1,4 @@
-library sdlang_dart.grammar;
+library sdl_dart.grammar;
 
 import 'package:petitparser/petitparser.dart';
 

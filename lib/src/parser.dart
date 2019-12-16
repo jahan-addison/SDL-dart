@@ -1,4 +1,4 @@
-library sdlang_dart.parser;
+library sdl_dart.parser;
 import 'package:petitparser/petitparser.dart';
 import 'package:fixnum/fixnum.dart';
 

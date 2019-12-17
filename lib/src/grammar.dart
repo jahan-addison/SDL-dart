@@ -77,7 +77,8 @@ class SDLangGrammarDefinition extends GrammarDefinition {
   Parser switch_() => ref(token, ref(SWITCH), 'switch');
   Parser primitive_() => ref(BOOL)
     | ref(SWITCH)
-    | ref(NULL);
+    | ref(NULL)
+    | ref(BINARY);
 
   Parser BOOL() => ref(token, 'true') | ref(token, 'false');
 
@@ -153,6 +154,8 @@ class SDLangGrammarDefinition extends GrammarDefinition {
     & digit().times(2)
     & char(':')
     & digit().times(2);
+
+  Parser BINARY() => pattern('-A-Za-z0-9+/=');
 
   Parser SPECIAL() => anyOf('!#\$%^&*()@-+=_{}[];:<>,.?/|');
 

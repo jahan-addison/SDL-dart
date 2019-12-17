@@ -12,10 +12,8 @@ final result = sdl.parse(source);
 print(result.value);
 ```
 
-Wont Do:
-
+Not implemented:
     * 128 bit decimal
-    * Binary data values
 
 ## License
 Apache License 2.0.

@@ -5,6 +5,6 @@ library sdl_dart;
 /// example:
 ///     final sdl = new SDLangParser();
 ///     final result = sdl.parse(source);
-///     print(result.value); // parse tree
+///     print(result.value);
 export 'src/grammar.dart';
 export 'src/parser.dart';

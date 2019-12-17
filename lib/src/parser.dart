@@ -27,13 +27,11 @@ class SDLangParserDefinition extends SDLangGrammarDefinition {
     return []..add(each[0])..add(each[2]);
   });
 
-  Parser id() => ref(l_id).trim();
+  Parser id() => ref(ID).trim();
 
   Parser attribute() => super.attribute().map((each) {
     return {'${each[0]}' : each[2]};
   });
-
-  Parser value() => super.value().map((each) => [each]);
 
   Parser node() => super.node().map((each) {
     return each.fold([], (a, e) {
@@ -44,8 +42,9 @@ class SDLangParserDefinition extends SDLangGrammarDefinition {
     });
   });
 
-  Parser stringToken() => ref(l_string).trim();
-  Parser numberToken() => super.numberToken().map((each) {
+  Parser string_() => ref(STRING).trim();
+
+  Parser number_() => super.number_().map((each) {
     final len = each.length;
     final special = each[len-1] == 'L' || each[len-1] == 'f';
     final floating = double.parse(special ? each.substring(0, len-1) : each);
@@ -60,6 +59,13 @@ class SDLangParserDefinition extends SDLangGrammarDefinition {
       return floating;
     }
   });
-  Parser l_id() => super.l_id().flatten();
-  Parser l_string() => super.l_string().map((e) => e[1].join());
+
+  Parser datetime_() => super.datetime_().flatten();
+
+  Parser ID() => super.ID().flatten();
+  Parser DATE() => super.DATE().flatten();
+  Parser TIME() => super.TIME().flatten();
+  Parser DURATION_1() => super.DURATION_1().flatten();
+  Parser DURATION_2() => super.DURATION_2().flatten();
+  Parser STRING() => super.STRING().map((e) => e[1].join());
 }

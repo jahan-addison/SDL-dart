@@ -13,41 +13,17 @@ class SDLangGrammarDefinition extends GrammarDefinition {
 
   Parser start() => ref(document).end();
 
-  Parser token(Object source, [String name]) {
-    Parser parser;
-    String expected;
-    if (source is String) {
-      if (source.length == 1) {
-        parser = char(source);
-      } else {
-        parser = string(source);
-      }
-      expected = name ?? source;
-    } else if (source is Parser) {
-      parser = source;
-      expected = name;
-    } else {
-      throw ArgumentError('Unknown token type: $source.');
-    }
-    if (expected == null) {
-      throw ArgumentError('Missing token name: $source');
-    }
-    return parser.flatten(expected).trim();
-  }
-
-  Parser document() => (((ref(value)
-    | ref(object)
-    | ref(space)
-    | ref(sections)).plus())
-      .separatedBy(ref(l_eol).star()))
+  Parser document() => (ref(value)
+      | ref(object)
+      | ref(sections)
+    ).plus()
       .trim(ref(space));
 
   Parser sections() => ref(section).plus();
 
   Parser section() => ref(name)
-    & l_space().star()
+    & space().star()
     & ( ref(object)
-      | ref(space)
       | (ref(node)));
 
   Parser object() => ref(token, '{')
@@ -58,90 +34,146 @@ class SDLangGrammarDefinition extends GrammarDefinition {
   Parser node() => ((ref(value)
     | ref(attribute)
     | ref(space)
-    | ref(object)).plus()).separatedBy(ref(l_space) | ref(token, ';'));
+    | ref(object)).plus())
+      .separatedBy(ref(SPACE)
+        | ref(token, ';'), includeSeparators: false);
 
-  Parser attribute() => ref(l_id) & ref(token, '=') & ref(value);
-
-  Parser namespace() => ref(l_id) & ref(token, ':') & ref(l_id);
-
-  Parser id() => ref(l_id, 'identifier');
-
+  Parser attribute() => ref(ID) & ref(token, '=') & ref(value);
+  Parser namespace() => ref(ID) & ref(token, ':') & ref(ID);
+  Parser id() => ref(token, ID, 'identifier');
   Parser name() => ref(namespace) | ref(id);
+  Parser value() => (ref(string_)
+    | ref(datetime_)
+    | ref(number_)
+    | ref(primitive_))
+      .trim(ref(space));
 
-  Parser value() => (ref(stringToken)
-      | ref(numberToken)
-      | ref(primitiveToken))
-        .trim(ref(space));
+  Parser token(Object parser, [String message]) {
+    if (parser is Parser) {
+      return parser.flatten(message).trim(ref(space));
+    } else if (parser is String) {
+      return token(
+        parser.length == 1 ? char(parser) : string(parser),
+        message ?? '$parser expected',
+      );
+    } else {
+      throw ArgumentError.value(parser, 'parser', 'Invalid parser type');
+    }
+  }
 
-  Parser boolToken() => ref(token, ref(l_bool), 'boolean');
-  Parser numberToken() => ref(token, ref(l_number), 'number');
-  Parser stringToken() => ref(token, ref(l_string), 'string');
-  Parser nullToken() => ref(token, string('null'), 'null');
-  Parser switchToken() => ref(token, ref(l_switch), 'switch');
-  Parser primitiveToken() => ref(boolToken)
-    | ref(switchToken)
-    | ref(nullToken);
+  Parser bool_() => ref(token, ref(BOOL), 'boolean');
+  Parser number_() => ref(token, ref(NUMBER), 'number')
+    .map((each) {
+      return RegExp(r"(\S+)").firstMatch(each)[0];
+    });
+  Parser string_() => ref(token, ref(STRING), 'string');
+  Parser datetime_() => ref(token, ref(DATETIME)
+    | ref(date_)
+    | ref(time_), 'datetime');
+  Parser date_() => ref(token, ref(DATE), 'date');
+  Parser time_() => ref(token, ref(TIME)
+    | ref(DURATION_1)
+    | ref(DURATION_2), 'time');
+  Parser switch_() => ref(token, ref(SWITCH), 'switch');
+  Parser primitive_() => ref(BOOL)
+    | ref(SWITCH)
+    | ref(NULL);
 
-  Parser l_bool() => ref(token, 'true') | ref(token, 'false');
+  Parser BOOL() => ref(token, 'true') | ref(token, 'false');
 
-  Parser l_switch() => ref(token, 'on') | ref(token, 'off');
+  Parser SWITCH() => ref(token, 'on') | ref(token, 'off');
 
-  Parser l_number() => ref(l_64bit_float)
-    | ref(l_64bit_int)
-    | ref(l_32bit_int);
+  Parser NUMBER() => ref(I64BIT_FLOAT)
+    | ref(I64BIT_INT)
+    | ref(I32BIT_INT);
 
-  Parser l_int() => ref(token, digit().plus(), 'integer');
+  Parser NULL() => ref(token, string('null'), 'null');
 
-  Parser l_32bit_int() => ref(token, ref(l_int), '32 bit integer');
-  Parser l_64bit_int() => ref(token, ref(l_int) & char('L'), '64 bit integer');
+  Parser INT() => ref(token, digit().plus(), 'integer');
 
-  // Interpret all floats as 64bit due to https://github.com/dart-lang/sdk/issues/9064
-  Parser l_64bit_float() => ref(token,
+  Parser I32BIT_INT() => ref(token, ref(INT), '32 bit integer');
+  Parser I64BIT_INT() => ref(token, ref(INT) & char('L'), '64 bit integer');
+
+  // Interpret all floats as i64bit due to https://github.com/dart-lang/sdk/issues/i9064
+  Parser I64BIT_FLOAT() => ref(token,
     ((digit().plus()
       & (char('.')
       & digit().plus())
       )
     & char('f').optional()), '64bit double precision');
 
-  Parser space() => ref(l_comments).flatten();
+  Parser space() => whitespace() | ref(COMMENTS);
 
-  Parser l_comments() => (string('//') & Token.newlineParser().neg().star())
+  Parser COMMENTS() => (string('//') & Token.newlineParser().neg().star())
      | (string('--') & Token.newlineParser().neg().star())
+     | (string('/*').starLazy(string('*/')) & string('*/'))
      | (char('#') & Token.newlineParser().neg().star());
 
-  Parser l_string() => ref(l_string_1)
-    | ref(l_string_2);
+  Parser STRING() => ref(STRING_1)
+    | ref(STRING_2);
 
-  Parser l_space() => char(' ')
-    | char('\t');
-
-
-  Parser l_eol() => Token.newlineParser()
+  Parser EOL() => Token.newlineParser()
     | string(';');
 
-  Parser l_id() => (letter()
+  Parser ID() => (letter()
     & (anyOf('_-.\$')
       | word()).star()
   );
 
-  Parser l_special() => anyOf('!#\$%^&*()@-+=_{}[];:<>,.?/|');
+  Parser DATETIME() => ref(DATE)
+    & char(' ')
+    & ref(DURATION_1)
+    & string('-UTC').optional();
 
-  Parser l_char() => letter()
-    | ref(l_special)
-    | ref(l_space)
+  Parser DATE() => digit().times(4)
+    & char('/')
+    & digit().times(2)
+    & char('/')
+    & digit().times(2);
+
+  Parser TIME() => digit().times(2)
+    & char(':')
+    & digit().times(2)
+    & char(':')
+    & digit().times(2);
+
+  Parser DURATION_1() => digit().times(2)
+    & char(':')
+    & digit().times(2)
+    & char(':')
+    & digit().times(2)
+    & (char('.')
+      & digit().times(3));
+
+  Parser DURATION_2() => digit().times(1)
+    & char('d')
+    & char(':')
+    & digit().times(2)
+    & char(':')
+    & digit().times(2)
+    & char(':')
+    & digit().times(2);
+
+  Parser SPECIAL() => anyOf('!#\$%^&*()@-+=_{}[];:<>,.?/|');
+
+  Parser SPACE() => char(' ')
+    | char('\t');
+
+  Parser CHAR() => letter()
+    | ref(SPECIAL)
+    | ref(SPACE)
     | digit();
 
-  Parser l_string_1() => (
+  Parser STRING_1() => (
       char('"')
-        & (ref(l_char)
+        & (ref(CHAR)
           | string('\\"')).star()
       & char('"')
     );
 
-  Parser l_string_2() => (
+  Parser STRING_2() => (
     char("'")
-      & (ref(l_char) | char('"')).star()
+      & (ref(CHAR) | char('"')).star()
     & char("'")
     );
-
 }

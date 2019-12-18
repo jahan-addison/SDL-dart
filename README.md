@@ -12,7 +12,8 @@ final result = sdl.parse(source);
 print(result.value);
 ```
 
-Not yet implemented:
+Not implemented:
+
     * 128 bit decimal
     * utf8 support
 

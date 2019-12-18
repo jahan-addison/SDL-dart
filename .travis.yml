@@ -1,0 +1,12 @@
+language: dart
+dart:
+  - stable
+  - dev
+
+install:
+  - pub get
+
+jobs:
+  include:
+    name: test
+    script: pub run test/all_test.dart

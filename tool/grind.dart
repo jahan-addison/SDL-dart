@@ -2,14 +2,20 @@ import 'package:grinder/grinder.dart';
 
 main(args) => grind(args);
 
-@Task()
+@Task('Run tests.')
 test() => new TestRunner().testAsync();
 
-@DefaultTask()
-@Depends(test)
-build() {
-  Pub.build();
+@Task('Generate documentation.')
+doc() => DartDoc.docAsync();
+
+@Task('Publish package.')
+publish() async {
 }
 
-@Task()
+@DefaultTask("Build.")
+@Depends(test)
+build() async {
+}
+
+@Task('Clean up.')
 clean() => defaultClean();

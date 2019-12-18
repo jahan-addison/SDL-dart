@@ -12,8 +12,9 @@ final result = sdl.parse(source);
 print(result.value);
 ```
 
-Not implemented:
+Not yet implemented:
     * 128 bit decimal
+    * utf8 support
 
 ## License
 Apache License 2.0.

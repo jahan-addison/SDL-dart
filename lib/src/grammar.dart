@@ -61,7 +61,6 @@ class SDLangGrammarDefinition extends GrammarDefinition {
     }
   }
 
-  Parser bool_() => ref(token, ref(BOOL), 'boolean');
   Parser number_() => ref(token, ref(NUMBER), 'number')
     .map((each) {
       return RegExp(r"(\S+)").firstMatch(each)[0];
@@ -74,7 +73,6 @@ class SDLangGrammarDefinition extends GrammarDefinition {
   Parser time_() => ref(token, ref(TIME)
     | ref(DURATION_1)
     | ref(DURATION_2), 'time');
-  Parser switch_() => ref(token, ref(SWITCH), 'switch');
   Parser primitive_() => ref(BOOL)
     | ref(SWITCH)
     | ref(NULL)
@@ -111,7 +109,8 @@ class SDLangGrammarDefinition extends GrammarDefinition {
      | (char('#') & Token.newlineParser().neg().star());
 
   Parser STRING() => ref(STRING_1)
-    | ref(STRING_2);
+    | ref(STRING_2)
+    | ref(STRING_3);
 
   Parser EOL() => Token.newlineParser()
     | string(';');
@@ -155,7 +154,9 @@ class SDLangGrammarDefinition extends GrammarDefinition {
     & char(':')
     & digit().times(2);
 
-  Parser BINARY() => pattern('-A-Za-z0-9+/=');
+  Parser BINARY() => char('[')
+    & pattern('A-Za-z0-9+/=-').plus()
+    & char(']');
 
   Parser SPECIAL() => anyOf('!#\$%^&*()@-+=_{}[];:<>,.?/|');
 
@@ -176,7 +177,16 @@ class SDLangGrammarDefinition extends GrammarDefinition {
 
   Parser STRING_2() => (
     char("'")
-      & (ref(CHAR) | char('"')).star()
+      & (ref(CHAR)
+        | char('"')).star()
     & char("'")
+    );
+
+  Parser STRING_3() => (
+    char("`")
+      & (ref(CHAR)
+        | char('"')
+        | char("'")).star()
+    & char("`")
     );
 }

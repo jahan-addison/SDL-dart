@@ -1,6 +1,7 @@
 library sdl_dart.parser;
 import 'package:petitparser/petitparser.dart';
 import 'package:fixnum/fixnum.dart';
+import 'dart:convert';
 
 import 'grammar.dart';
 
@@ -63,9 +64,24 @@ class SDLangParserDefinition extends SDLangGrammarDefinition {
   Parser datetime_() => super.datetime_().flatten();
 
   Parser ID() => super.ID().flatten();
+
   Parser DATE() => super.DATE().flatten();
+
+  Parser BOOL() => super.BOOL().map((each) {
+    return each == 'true' ? true : false;
+  });
+
+  Parser NULL() => super.NULL().map((each) => null);
+
   Parser TIME() => super.TIME().flatten();
+
+  Parser BINARY() => super.BINARY().flatten().map((each) {
+    return each.substring(1, each.length-1);
+  });
+
   Parser DURATION_1() => super.DURATION_1().flatten();
+
   Parser DURATION_2() => super.DURATION_2().flatten();
+
   Parser STRING() => super.STRING().map((e) => e[1].join());
 }

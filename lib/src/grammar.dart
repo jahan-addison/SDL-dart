@@ -11,6 +11,7 @@ class SDLangGrammar extends GrammarParser {
 class SDLangGrammarDefinition extends GrammarDefinition {
   const SDLangGrammarDefinition();
 
+  @override
   Parser start() => ref(document).end();
 
   Parser document() =>
@@ -53,7 +54,7 @@ class SDLangGrammarDefinition extends GrammarDefinition {
   }
 
   Parser number_() => ref(token, ref(NUMBER), 'number').map((each) {
-        return RegExp(r"(\S+)").firstMatch(each)[0];
+        return RegExp(r'(\S+)').firstMatch(each)[0];
       });
   Parser string_() => ref(token, ref(STRING), 'string');
   Parser datetime_() =>
@@ -146,5 +147,5 @@ class SDLangGrammarDefinition extends GrammarDefinition {
   Parser STRING_2() => (char("'") & (ref(CHAR) | char('"')).star() & char("'"));
 
   Parser STRING_3() =>
-      (char("`") & (ref(CHAR) | char('"') | char("'")).star() & char("`"));
+      (char('`') & (ref(CHAR) | char('"') | char("'")).star() & char('`'));
 }

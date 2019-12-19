@@ -56,7 +56,7 @@ void main() {
 
 Produces [this parse tree](https://gist.github.com/jahan-addison/894832429b583d23f4f07203faf630c5).
 
-## Not yet implemented
+## Not implemented
 
     * 128 bit decimal
     * utf8 support

@@ -1,4 +1,5 @@
 library sdl_dart;
+
 /// This package contains an implementation of [SDLang](https://sdlang.org/).
 ///
 /// [SDLangParser] creates nested Dart objects from a given source string. For

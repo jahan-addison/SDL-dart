@@ -1,7 +1,6 @@
 library sdl_dart.parser;
 import 'package:petitparser/petitparser.dart';
 import 'package:fixnum/fixnum.dart';
-import 'dart:convert';
 
 import 'grammar.dart';
 
@@ -21,11 +20,16 @@ class SDLangParserDefinition extends SDLangGrammarDefinition {
   });
 
   Parser object() => super.object().map((each) {
-    return []..add(each[1]);
+    return each[1];
+  });
+
+  Parser sections() => super.sections().map((each) {
+    return each.length > 1 ? each : each[0];
   });
 
   Parser section() => super.section().map((each) {
-    return []..add(each[0])..add(each[2]);
+    return []..add(each[0])
+      ..add(each[2][0] is List ? each[2][0] : each[2]);
   });
 
   Parser id() => ref(ID).trim();
@@ -64,15 +68,12 @@ class SDLangParserDefinition extends SDLangGrammarDefinition {
   Parser datetime_() => super.datetime_().flatten();
 
   Parser ID() => super.ID().flatten();
-
   Parser DATE() => super.DATE().flatten();
-
   Parser BOOL() => super.BOOL().map((each) {
     return each == 'true' ? true : false;
   });
 
   Parser NULL() => super.NULL().map((each) => null);
-
   Parser TIME() => super.TIME().flatten();
 
   Parser BINARY() => super.BINARY().flatten().map((each) {
@@ -80,8 +81,6 @@ class SDLangParserDefinition extends SDLangGrammarDefinition {
   });
 
   Parser DURATION_1() => super.DURATION_1().flatten();
-
   Parser DURATION_2() => super.DURATION_2().flatten();
-
   Parser STRING() => super.STRING().map((e) => e[1].join());
 }

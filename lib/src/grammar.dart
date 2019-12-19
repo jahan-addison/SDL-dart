@@ -19,7 +19,9 @@ class SDLangGrammarDefinition extends GrammarDefinition {
     ).plus()
       .trim(ref(space));
 
-  Parser sections() => ref(section).plus();
+  Parser sections() =>
+    ref(section).separatedBy(char(';'), includeSeparators: false)
+      | ref(section).plus();
 
   Parser section() => ref(name)
     & space().star()
@@ -27,16 +29,15 @@ class SDLangGrammarDefinition extends GrammarDefinition {
       | (ref(node)));
 
   Parser object() => ref(token, '{')
-    & (ref(sections)
-      | ref(value).star())
+    & (ref(value).plus()
+      | ref(sections).star())
     & ref(token, '}');
 
   Parser node() => ((ref(value)
     | ref(attribute)
     | ref(space)
     | ref(object)).plus())
-      .separatedBy(ref(SPACE)
-        | ref(token, ';'), includeSeparators: false);
+      .separatedBy(ref(SPACE), includeSeparators: false);
 
   Parser attribute() => ref(ID) & ref(token, '=') & ref(value);
   Parser namespace() => ref(ID) & ref(token, ':') & ref(ID);
@@ -70,9 +71,9 @@ class SDLangGrammarDefinition extends GrammarDefinition {
     | ref(date_)
     | ref(time_), 'datetime');
   Parser date_() => ref(token, ref(DATE), 'date');
-  Parser time_() => ref(token, ref(TIME)
-    | ref(DURATION_1)
-    | ref(DURATION_2), 'time');
+  Parser time_() => ref(token, ref(DURATION_1)
+    | ref(DURATION_2)
+    | ref(TIME), 'time');
   Parser primitive_() => ref(BOOL)
     | ref(SWITCH)
     | ref(NULL)
@@ -103,10 +104,11 @@ class SDLangGrammarDefinition extends GrammarDefinition {
 
   Parser space() => whitespace() | ref(COMMENTS);
 
-  Parser COMMENTS() => (string('//') & Token.newlineParser().neg().star())
-     | (string('--') & Token.newlineParser().neg().star())
-     | (string('/*').starLazy(string('*/')) & string('*/'))
-     | (char('#') & Token.newlineParser().neg().star());
+  Parser COMMENTS() =>
+    (string('/*') & any().starLazy(string('*/')) & string('*/'))
+      | (string('//') & Token.newlineParser().neg().star())
+      | (string('--') & Token.newlineParser().neg().star())
+      | (char('#') & Token.newlineParser().neg().star());
 
   Parser STRING() => ref(STRING_1)
     | ref(STRING_2)
@@ -142,8 +144,8 @@ class SDLangGrammarDefinition extends GrammarDefinition {
     & digit().times(2)
     & char(':')
     & digit().times(2)
-    & (char('.')
-      & digit().times(3));
+    & char('.')
+    & digit().times(3);
 
   Parser DURATION_2() => digit().times(1)
     & char('d')
